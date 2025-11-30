@@ -1,24 +1,82 @@
-import React from "react";
-import { useNavigate } from "react-router-dom";
-
+import React, { useEffect, useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import Sidebar from "./Sidebar";
+import NotesList from "./NotesList";
+import Navbar from "./Navbar";
+import { addNote, loadFromLocalStorage } from "../store/notesSlice";
+import { selectFilteredNotes } from "../store/notesSlice";
 const Dashboard = () => {
-  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const notes = useSelector(selectFilteredNotes);
+const categories = useSelector((state) => state.notes.categories);
+  const username = JSON.parse(localStorage.getItem("user"))?.username || "User";
+
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [category, setCategory] = useState("All");
+
+  // Load from LocalStorage on first render
+  useEffect(() => {
+    dispatch(loadFromLocalStorage());
+  }, [dispatch]);
+
+  const handleAddNote = () => {
+    if (title.trim() && description.trim()) {
+      dispatch(addNote({ title, description, category }));
+      setTitle("");
+      setDescription("");
+    }
+  };
 
   const handleLogout = () => {
     localStorage.removeItem("user");
-    navigate("/");
+    window.location.href = "/";
   };
 
   return (
-    <div className="p-8">
-      <h1 className="text-3xl font-bold mb-4">Dashboard</h1>
-      <p>Welcome! You are logged in.</p>
-      <button
-        onClick={handleLogout}
-        className="mt-4 bg-red-500 text-white p-2 rounded hover:bg-red-600"
-      >
-        Logout
-      </button>
+    <div className="flex h-screen">
+      <Sidebar />
+      <div className="flex-1 flex flex-col">
+        <Navbar username={username} onLogout={handleLogout} />
+
+        {/* Add Note Form */}
+        <div className="p-4 border-b border-gray-300">
+          <input
+            type="text"
+            placeholder="Title"
+            className="border rounded px-2 py-1 mr-2"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+          />
+          <input
+            type="text"
+            placeholder="Description"
+            className="border rounded px-2 py-1 mr-2"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+          />
+          <select
+  className="border rounded px-2 py-1 mr-2"
+  value={category}
+  onChange={(e) => setCategory(e.target.value)}
+>
+  <option value="All">All</option>
+  {categories.map((cat) => (
+    <option key={cat} value={cat}>
+      {cat}
+    </option>
+  ))}
+</select>
+          <button
+            onClick={handleAddNote}
+            className="px-3 py-1 bg-green-500 text-white rounded"
+          >
+            Add Note
+          </button>
+        </div>
+
+        <NotesList notes={notes} />
+      </div>
     </div>
   );
 };
