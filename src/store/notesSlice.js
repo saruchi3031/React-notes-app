@@ -5,6 +5,8 @@ const initialState = {
   notes: [],
   categories: [],
   filterCategory: "All",
+  searchQuery: "",
+  showStarredOnly: false,
 };
 
 const notesSlice = createSlice({
@@ -45,6 +47,12 @@ const notesSlice = createSlice({
     setFilterCategory: (state, action) => {
       state.filterCategory = action.payload;
     },
+    setSearchQuery: (state, action) => {
+      state.searchQuery = action.payload;
+    },
+    setShowStarredOnly: (state, action) => {
+      state.showStarredOnly = action.payload;
+    },
     loadFromLocalStorage: (state) => {
       const savedNotes = JSON.parse(localStorage.getItem("notes")) || [];
       const savedCategories =
@@ -62,13 +70,37 @@ export const {
   addCategory,
   setFilterCategory,
   loadFromLocalStorage,
+  setSearchQuery,
+  setShowStarredOnly,
 } = notesSlice.actions;
 
 // selector for filtered notes
 export const selectFilteredNotes = (state) => {
-  const { notes, filterCategory } = state.notes;
-  if (filterCategory === "All") return notes;
-  return notes.filter((n) => n.category === filterCategory);
+  const { notes, filterCategory, searchQuery, showStarredOnly } = state.notes;
+
+  let filtered = notes;
+
+  // Category filter
+  if (filterCategory !== "All") {
+    filtered = filtered.filter((n) => n.category === filterCategory);
+  }
+
+  // Starred-only filter
+  if (showStarredOnly) {
+    filtered = filtered.filter((n) => n.starred);
+  }
+
+  // Search filter (title + description)
+  if (searchQuery.trim() !== "") {
+    const q = searchQuery.toLowerCase();
+    filtered = filtered.filter(
+      (n) =>
+        n.title.toLowerCase().includes(q) ||
+        n.description.toLowerCase().includes(q)
+    );
+  }
+
+  return filtered;
 };
 
 export default notesSlice.reducer;
