@@ -3,8 +3,10 @@ import { useSelector, useDispatch } from "react-redux";
 import Sidebar from "./Sidebar";
 import NotesList from "./NotesList";
 import Navbar from "./Navbar";
+import EditNoteModal from "./EditNoteModal";
 import {
   addNote,
+  editNote,
   loadFromLocalStorage,
   selectFilteredNotes,
   setSearchQuery,
@@ -26,8 +28,9 @@ const Dashboard = () => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("All");
+  const [editingNote, setEditingNote] = useState(null);
 
-  // Load notes on mount
+  // Load notes/categories from LocalStorage on mount
   useEffect(() => {
     dispatch(loadFromLocalStorage());
   }, [dispatch]);
@@ -37,7 +40,13 @@ const Dashboard = () => {
       dispatch(addNote({ title, description, category }));
       setTitle("");
       setDescription("");
+      setCategory("All");
     }
+  };
+
+  const handleSaveEdit = (updatedNote) => {
+    dispatch(editNote(updatedNote));
+    setEditingNote(null);
   };
 
   const handleLogout = () => {
@@ -115,14 +124,23 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* NOTES LIST */}
+        {/* Notes list */}
         <div className="flex-1 overflow-auto p-4">
-          <NotesList notes={notes} />
+          <NotesList notes={notes} onEdit={(note) => setEditingNote(note)} />
         </div>
       </div>
+
+      {/* Edit Note Modal */}
+      {editingNote && (
+        <EditNoteModal
+          note={editingNote}
+          categories={categories}
+          onClose={() => setEditingNote(null)}
+          onSave={handleSaveEdit}
+        />
+      )}
     </div>
   );
 };
 
 export default Dashboard;
-

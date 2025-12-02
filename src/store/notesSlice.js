@@ -1,4 +1,3 @@
-// src/store/notesSlice.js
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
@@ -23,58 +22,81 @@ const notesSlice = createSlice({
         createdAt: Date.now(),
       };
       state.notes.push(newNote);
-      // persist
-      localStorage.setItem("notes", JSON.stringify(state.notes));
+      saveToLocalStorage(state);
     },
+
     deleteNote: (state, action) => {
       state.notes = state.notes.filter((note) => note.id !== action.payload);
-      localStorage.setItem("notes", JSON.stringify(state.notes));
+      saveToLocalStorage(state);
     },
+
     toggleStar: (state, action) => {
       const note = state.notes.find((n) => n.id === action.payload);
-      if (note) {
-        note.starred = !note.starred;
-        localStorage.setItem("notes", JSON.stringify(state.notes));
-      }
+      if (note) note.starred = !note.starred;
+      saveToLocalStorage(state);
     },
+
+    editNote: (state, action) => {
+      const { id, title, description, category } = action.payload;
+      const note = state.notes.find((n) => n.id === id);
+      if (note) {
+        note.title = title;
+        note.description = description;
+        note.category = category;
+      }
+      saveToLocalStorage(state);
+    },
+
     addCategory: (state, action) => {
       const name = action.payload;
-      if (name && !state.categories.includes(name)) {
-        state.categories.push(name);
-        localStorage.setItem("categories", JSON.stringify(state.categories));
-      }
+      if (name && !state.categories.includes(name)) state.categories.push(name);
+      saveToLocalStorage(state);
     },
+
     setFilterCategory: (state, action) => {
       state.filterCategory = action.payload;
+      saveToLocalStorage(state);
     },
+
     setSearchQuery: (state, action) => {
       state.searchQuery = action.payload;
     },
+
     setShowStarredOnly: (state, action) => {
       state.showStarredOnly = action.payload;
     },
+
     loadFromLocalStorage: (state) => {
-      const savedNotes = JSON.parse(localStorage.getItem("notes")) || [];
-      const savedCategories =
-        JSON.parse(localStorage.getItem("categories")) || [];
-      state.notes = savedNotes;
-      state.categories = savedCategories;
+      const savedState = JSON.parse(localStorage.getItem("notesState"));
+      if (savedState) {
+        state.notes = savedState.notes || [];
+        state.categories = savedState.categories || [];
+        state.filterCategory = savedState.filterCategory || "All";
+        state.searchQuery = savedState.searchQuery || "";
+        state.showStarredOnly = savedState.showStarredOnly || false;
+      }
     },
   },
 });
+
+// Helper function to save entire state to LocalStorage
+const saveToLocalStorage = (state) => {
+  localStorage.setItem("notesState", JSON.stringify(state));
+};
 
 export const {
   addNote,
   deleteNote,
   toggleStar,
+  editNote,
   addCategory,
   setFilterCategory,
-  loadFromLocalStorage,
   setSearchQuery,
   setShowStarredOnly,
+  loadFromLocalStorage,
 } = notesSlice.actions;
 
-// selector for filtered notes
+// Selector for filtered notes
 export const selectFilteredNotes = (state) => {
   const { notes, filterCategory, searchQuery, showStarredOnly } = state.notes;
 
@@ -90,7 +112,7 @@ export const selectFilteredNotes = (state) => {
     filtered = filtered.filter((n) => n.starred);
   }
 
-  // Search filter (title + description)
+  // Search filter
   if (searchQuery.trim() !== "") {
     const q = searchQuery.toLowerCase();
     filtered = filtered.filter(
