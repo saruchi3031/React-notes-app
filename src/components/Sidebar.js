@@ -1,55 +1,65 @@
 import React, { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { setFilterCategory } from "../store/notesSlice";
+import { addCategory, setFilterCategory } from "../store/notesSlice";
 
-const Sidebar = () => {
+const Sidebar = ({ darkMode }) => {
   const dispatch = useDispatch();
   const categories = useSelector((state) => state.notes.categories);
+  const filterCategory = useSelector((state) => state.notes.filterCategory);
+
   const [newCategory, setNewCategory] = useState("");
 
   const handleAddCategory = () => {
-    if (newCategory.trim() !== "") {
-      dispatch({ type: "notes/addCategory", payload: newCategory.trim() });
+    if (newCategory.trim()) {
+      dispatch(addCategory(newCategory));
       setNewCategory("");
     }
   };
 
   return (
-    <div className="w-64 p-4 border-r border-gray-300">
-      <h2 className="text-xl font-bold mb-4">Categories</h2>
+    <div className="w-60 bg-gray-200 dark:bg-gray-800 p-4 text-gray-900 dark:text-gray-100 flex-shrink-0">
+      <h2 className="text-lg font-bold mb-4">Categories</h2>
 
-      <button
-        className="mb-2 px-3 py-1 bg-gray-200 rounded"
-        onClick={() => dispatch(setFilterCategory("All"))}
-      >
-        All Notes
-      </button>
+      <ul className="mb-4">
+        <li
+          className={`cursor-pointer p-2 rounded ${
+            filterCategory === "All"
+              ? "bg-gray-300 dark:bg-gray-700 font-semibold"
+              : "hover:bg-gray-300 dark:hover:bg-gray-700"
+          }`}
+          onClick={() => dispatch(setFilterCategory("All"))}
+        >
+          All
+        </li>
 
-      <div className="flex flex-col space-y-1">
         {categories.map((cat) => (
-          <button
+          <li
             key={cat}
-            className="px-3 py-1 bg-gray-100 rounded text-left"
+            className={`cursor-pointer p-2 rounded ${
+              filterCategory === cat
+                ? "bg-gray-300 dark:bg-gray-700 font-semibold"
+                : "hover:bg-gray-300 dark:hover:bg-gray-700"
+            }`}
             onClick={() => dispatch(setFilterCategory(cat))}
           >
             {cat}
-          </button>
+          </li>
         ))}
-      </div>
+      </ul>
 
-      <div className="mt-4">
+      <div className="flex gap-2">
         <input
           type="text"
-          className="border rounded px-2 py-1 w-full"
           placeholder="New category"
+          className="flex-1 border rounded px-2 py-1 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600"
           value={newCategory}
           onChange={(e) => setNewCategory(e.target.value)}
         />
         <button
-          className="mt-1 w-full bg-blue-500 text-white py-1 rounded"
           onClick={handleAddCategory}
+          className="px-3 py-1 bg-blue-500 text-white rounded dark:bg-blue-600 hover:bg-blue-600 dark:hover:bg-blue-500 transition-colors"
         >
-          Add Category
+          Add
         </button>
       </div>
     </div>

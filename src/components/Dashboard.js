@@ -30,10 +30,25 @@ const Dashboard = () => {
   const [category, setCategory] = useState("All");
   const [editingNote, setEditingNote] = useState(null);
 
-  // Load notes/categories from LocalStorage on mount
+  // Dark Mode state
+  const [darkMode, setDarkMode] = useState(
+    localStorage.getItem("darkMode") === "true"
+  );
+
   useEffect(() => {
+    // Load notes + categories from LocalStorage
     dispatch(loadFromLocalStorage());
   }, [dispatch]);
+
+  useEffect(() => {
+    // Apply dark mode class to <html>
+    if (darkMode) {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+    localStorage.setItem("darkMode", darkMode);
+  }, [darkMode]);
 
   const handleAddNote = () => {
     if (title.trim() && description.trim()) {
@@ -55,32 +70,37 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="flex h-screen">
-      <Sidebar />
+    <div className="flex h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
+      <Sidebar darkMode={darkMode} />
 
       <div className="flex-1 flex flex-col overflow-hidden">
-        <Navbar username={username} onLogout={handleLogout} />
+        <Navbar
+          username={username}
+          onLogout={handleLogout}
+          darkMode={darkMode}
+          setDarkMode={setDarkMode}
+        />
 
-        {/* Add + Search section */}
-        <div className="p-4 border-b border-gray-300 space-y-2 md:space-y-0 md:flex md:items-center md:justify-between">
+        {/* Add + Search Section */}
+        <div className="p-4 border-b border-gray-300 dark:border-gray-700 space-y-2 md:space-y-0 md:flex md:items-center md:justify-between">
           {/* Left: Add Note Form */}
           <div className="flex flex-wrap items-center gap-2">
             <input
               type="text"
               placeholder="Title"
-              className="border rounded px-2 py-1"
+              className="border rounded px-2 py-1 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
             />
             <input
               type="text"
               placeholder="Description"
-              className="border rounded px-2 py-1"
+              className="border rounded px-2 py-1 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
             />
             <select
-              className="border rounded px-2 py-1"
+              className="border rounded px-2 py-1 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600"
               value={category}
               onChange={(e) => setCategory(e.target.value)}
             >
@@ -94,7 +114,7 @@ const Dashboard = () => {
 
             <button
               onClick={handleAddNote}
-              className="px-3 py-1 bg-green-500 text-white rounded"
+              className="px-3 py-1 bg-green-500 text-white rounded dark:bg-green-600 hover:bg-green-600 dark:hover:bg-green-500 transition-colors"
             >
               Add Note
             </button>
@@ -105,7 +125,7 @@ const Dashboard = () => {
             <input
               type="text"
               placeholder="Search notes..."
-              className="border rounded px-2 py-1"
+              className="border rounded px-2 py-1 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600"
               value={searchQuery}
               onChange={(e) => dispatch(setSearchQuery(e.target.value))}
             />
@@ -124,7 +144,7 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Notes list */}
+        {/* Notes List */}
         <div className="flex-1 overflow-auto p-4">
           <NotesList notes={notes} onEdit={(note) => setEditingNote(note)} />
         </div>
