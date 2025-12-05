@@ -39,6 +39,17 @@ cd React-notes-app
 npm install
 npm start
 
+## 📸 Screenshots
+
+### 🔐 Login Page
+![Login](src/Screenshots/Loginpage.png)
+
+### 🏠 Dashboard
+![Dashboard](src/Screenshots/Dashboard.png)
+
+### 🌙 Dark Mode
+![Dark Mode](src/Screenshots/DarkMode.png)
+
 
 🎥 Demo Video
 
@@ -48,3 +59,4 @@ https://drive.google.com/file/d/1q6XdDoA1l56IJn89V7RsIG-YS3RR0IuI/view?usp=drive
 🌍 Live Demo
 
 https://fanciful-capybara-d9b8a7.netlify.app/
+```
