@@ -1,107 +1,74 @@
+import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  setFilterCategory,
-  addCategory,
-  editCategory,
-  deleteCategory,
-} from "../store/notesSlice";
-import { useState } from "react";
+import { addCategory, setFilterCategory } from "../store/notesSlice";
 
 const Sidebar = () => {
   const dispatch = useDispatch();
   const categories = useSelector((state) => state.notes.categories);
-  const active = useSelector((state) => state.notes.filterCategory);
+  const [newCategory, setNewCategory] = useState("");
+  const [open, setOpen] = useState(false); // ✅ mobile toggle state
 
-  const [newCat, setNewCat] = useState("");
-  const [editing, setEditing] = useState(null);
-  const [editValue, setEditValue] = useState("");
-
-  const handleAdd = () => {
-    if (newCat.trim()) {
-      dispatch(addCategory(newCat.trim()));
-      setNewCat("");
+  const handleAddCategory = () => {
+    if (newCategory.trim()) {
+      dispatch(addCategory(newCategory));
+      setNewCategory("");
     }
   };
 
   return (
-    <div className="w-60 p-4 border-r dark:bg-gray-900">
-      <h2 className="font-bold mb-3">Categories</h2>
-
+    <>
+      {/* ✅ MOBILE TOGGLE BUTTON */}
       <button
-        onClick={() => dispatch(setFilterCategory("All"))}
-        className={`block mb-2 ${active === "All" ? "font-bold" : ""}`}
+        className="md:hidden fixed top-3 left-3 z-50 bg-gray-800 text-white px-3 py-1 rounded"
+        onClick={() => setOpen(!open)}
       >
-        All
+        ☰
       </button>
 
-      {categories.map((cat) => (
-        <div key={cat} className="flex items-center justify-between mb-1">
-          {editing === cat ? (
-            <>
-              <input
-                value={editValue}
-                onChange={(e) => setEditValue(e.target.value)}
-                className="border px-1 text-sm"
-              />
-              <button
-                onClick={() => {
-                  dispatch(
-                    editCategory({ oldName: cat, newName: editValue })
-                  );
-                  setEditing(null);
-                }}
-                className="text-xs text-green-500"
-              >
-                ✅
-              </button>
-            </>
-          ) : (
-            <>
-              <button
-                onClick={() => dispatch(setFilterCategory(cat))}
-                className={`text-left flex-1 ${
-                  active === cat ? "font-bold" : ""
-                }`}
-              >
-                {cat}
-              </button>
+      {/* ✅ SIDEBAR */}
+      <div
+        className={`fixed md:static top-0 left-0 h-full w-64 bg-gray-100 dark:bg-gray-900 p-4 border-r z-40 transform transition-transform duration-300
+        ${open ? "translate-x-0" : "-translate-x-full"} md:translate-x-0`}
+      >
+        <h2 className="text-lg font-bold mb-4">Categories</h2>
 
-              <button
-                onClick={() => {
-                  setEditing(cat);
-                  setEditValue(cat);
-                }}
-                className="text-xs text-blue-500 mx-1"
-              >
-                ✏️
-              </button>
-
-              <button
-                onClick={() => dispatch(deleteCategory(cat))}
-                className="text-xs text-red-500"
-              >
-                🗑️
-              </button>
-            </>
-          )}
+        {/* ✅ Add Category */}
+        <div className="flex gap-2 mb-4">
+          <input
+            type="text"
+            placeholder="New Category"
+            className="border px-2 py-1 rounded w-full"
+            value={newCategory}
+            onChange={(e) => setNewCategory(e.target.value)}
+          />
+          <button
+            onClick={handleAddCategory}
+            className="bg-blue-500 text-white px-3 rounded"
+          >
+            +
+          </button>
         </div>
-      ))}
 
-      <div className="mt-3">
-        <input
-          value={newCat}
-          onChange={(e) => setNewCat(e.target.value)}
-          placeholder="New category"
-          className="border px-2 py-1 w-full text-sm"
-        />
-        <button
-          onClick={handleAdd}
-          className="w-full mt-1 bg-green-500 text-white text-sm py-1"
-        >
-          Add
-        </button>
+        {/* ✅ Category List */}
+        <ul className="space-y-2">
+          <li
+            className="cursor-pointer hover:text-blue-500"
+            onClick={() => dispatch(setFilterCategory("All"))}
+          >
+            All
+          </li>
+          {categories.map((cat) => (
+            <li
+              key={cat}
+              className="cursor-pointer hover:text-blue-500"
+              onClick={() => dispatch(setFilterCategory(cat))}
+            >
+              {cat}
+            </li>
+          ))}
+        </ul>
       </div>
-    </div>
+    </>
   );
 };
 

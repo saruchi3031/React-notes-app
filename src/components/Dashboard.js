@@ -18,12 +18,9 @@ const Dashboard = () => {
   const notes = useSelector(selectFilteredNotes);
   const categories = useSelector((state) => state.notes.categories);
   const searchQuery = useSelector((state) => state.notes.searchQuery);
-  const showStarredOnly = useSelector(
-    (state) => state.notes.showStarredOnly
-  );
+  const showStarredOnly = useSelector((state) => state.notes.showStarredOnly);
 
-  const username =
-    JSON.parse(localStorage.getItem("user"))?.username || "User";
+  const username = JSON.parse(localStorage.getItem("user"))?.username || "User";
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -70,7 +67,7 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="flex h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
+    <div className="flex flex-col md:flex-row min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
       <Sidebar darkMode={darkMode} />
 
       <div className="flex-1 flex flex-col overflow-hidden">
@@ -135,9 +132,7 @@ const Dashboard = () => {
                 type="checkbox"
                 className="mr-1"
                 checked={showStarredOnly}
-                onChange={(e) =>
-                  dispatch(setShowStarredOnly(e.target.checked))
-                }
+                onChange={(e) => dispatch(setShowStarredOnly(e.target.checked))}
               />
               Starred only
             </label>
